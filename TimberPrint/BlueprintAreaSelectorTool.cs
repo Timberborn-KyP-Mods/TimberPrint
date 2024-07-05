@@ -50,8 +50,11 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
 
     public void Load()
     {
-        _blockObjectSelectionDrawer = _blockObjectSelectionDrawerFactory.Create(_colors.DeletedObjectHighlightColor,
-            _colors.DeletedAreaTileColor, _colors.DeletedAreaSideColor);
+        _blockObjectSelectionDrawer = _blockObjectSelectionDrawerFactory.Create(
+            _colors.PriorityActionColor,
+            _colors.PriorityTileColor,
+            _colors.PrioritySideColor
+            );
         
         _inputService.AddInputProcessor(this);
     }
