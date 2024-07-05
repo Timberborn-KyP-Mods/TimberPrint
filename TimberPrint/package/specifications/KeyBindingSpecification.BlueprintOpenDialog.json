@@ -1,0 +1,12 @@
+{
+  "Id": "Blueprint.OpenDialog",
+  "GroupId": "TimberPrint",
+  "LocKey": "Blueprint.OpenDialog",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/Keyboard/o",
+    "InputModifiers": {
+      "Value": "Shift"
+    }
+  }
+}

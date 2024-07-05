@@ -1,13 +1,17 @@
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using Timberborn.AreaSelectionSystem;
-using Timberborn.CursorToolSystem;
+using Timberborn.ConstructionMode;
+using Timberborn.Coordinates;
 using Timberborn.InputSystem;
 using Timberborn.SingletonSystem;
-using UnityEngine;
+using Timberborn.ToolSystem;
 
 namespace TimberPrint;
 
-public class BlueprintPlacer : IInputProcessor, ILoadableSingleton
+public class BlueprintPlacerTool : Tool, IInputProcessor, ILoadableSingleton
 {
     private readonly InputService _inputService;
 
@@ -15,18 +19,21 @@ public class BlueprintPlacer : IInputProcessor, ILoadableSingleton
 
     private readonly AreaPickerFactory _areaPickerFactory;
 
-    private readonly CursorCoordinatesPicker _cursorCoordinatesPicker;
+    private readonly ToolManager _toolManager;
+
+    private readonly ConstructionModeService _constructionModeService;
 
     private BlueprintPreviewPlacer? _blueprintPreviewPlacer;
 
     private AreaPicker _areaPicker = null!;
 
-    public BlueprintPlacer(InputService inputService, BlueprintService blueprintService, AreaPickerFactory areaPickerFactory, CursorCoordinatesPicker cursorCoordinatesPicker)
+    public BlueprintPlacerTool(InputService inputService, BlueprintService blueprintService, AreaPickerFactory areaPickerFactory, ToolManager toolManager, ConstructionModeService constructionModeService)
     {
         _inputService = inputService;
         _blueprintService = blueprintService;
         _areaPickerFactory = areaPickerFactory;
-        _cursorCoordinatesPicker = cursorCoordinatesPicker;
+        _toolManager = toolManager;
+        _constructionModeService = constructionModeService;
     }
 
     public void Load()
@@ -34,64 +41,55 @@ public class BlueprintPlacer : IInputProcessor, ILoadableSingleton
         _inputService.AddInputProcessor(this);
         _areaPicker = _areaPickerFactory.Create();
     }
-
+    
     public bool ProcessInput()
     {
-        HandleToolStatus();
+        HandleToolActivator();
 
         if (_blueprintPreviewPlacer == null)
         {
             return false;
         }
 
-        if (TryGetCursorTile(out var tileCoordinates))
-        {
-            _blueprintPreviewPlacer.Show(tileCoordinates.Value);
-        }
-        else
-        {
-            _blueprintPreviewPlacer.HideAllPreviews();
-        }
-
-        return false;
+        return _areaPicker.PickBlockObjectArea(_blueprintPreviewPlacer.PreviewHandler, Orientation.Cw0, FlipMode.Unflipped, PreviewCallback, ActionCallback);
     }
 
-    private void HandleToolStatus()
+    private void ActionCallback(IEnumerable<Placement> placements)
+    {
+        if (_blueprintPreviewPlacer != null)
+        {
+            _blueprintService.PlaceBlueprint(_blueprintPreviewPlacer, placements.FirstOrDefault().Coordinates);
+        }
+    }
+
+    private void PreviewCallback(IEnumerable<Placement> placements)
+    {
+        var placement = placements.FirstOrDefault();
+        
+        if (placement != null)
+        {
+            _blueprintPreviewPlacer?.Show(placement.Coordinates);
+        }
+    }
+
+    private void HandleToolActivator()
     {
         if(_blueprintPreviewPlacer == null && _inputService.IsKeyDown("Blueprint.PlacerTool"))
         {
-            Enter();
-        }
-        
-        if(_blueprintPreviewPlacer != null && (_inputService.MouseCancel || _inputService.KeyboardCancel))
-        {
-            Exit();
+            _toolManager.SwitchTool(this);
         }
     }
-    
-    
-    private bool TryGetCursorTile([NotNullWhen(true)] out Vector3Int? tileCoordinates)
+
+    public override void Enter()
     {
-        var cursorCoordinates = _cursorCoordinatesPicker.CursorCoordinates();
-
-        if (cursorCoordinates.HasValue)
-        {
-            tileCoordinates = cursorCoordinates.Value.TileCoordinates;
-            return true;
-        }
-        
-        tileCoordinates = null;
-        return false;
+        _constructionModeService.EnterConstructionMode();
+        _blueprintService.TryLoadBlueprint(out _blueprintPreviewPlacer);
     }
 
-    private void Enter()
-    {
-        _blueprintPreviewPlacer = _blueprintService.LoadBlueprint();
-    }
-
-    private void Exit()
+    public override  void Exit()
     {
         _blueprintPreviewPlacer?.HideAllPreviews();
         _blueprintPreviewPlacer = null;
+        _constructionModeService.ExitConstructionMode();
     }
 }

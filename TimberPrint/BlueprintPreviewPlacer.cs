@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Timberborn.BlockSystem;
-using Timberborn.ConstructionMode;
 using Timberborn.Coordinates;
 using Timberborn.PrefabSystem;
 using Timberborn.PreviewSystem;
@@ -32,6 +30,8 @@ public class BlueprintPreviewPlacer
 
     public Blueprint Blueprint { get; }
 
+    public PlaceableBlockObject PreviewHandler { get; }
+
     private readonly Placement[] _previewPlacements;
     
     private Preview SinglePreview => _previews[0];
@@ -41,7 +41,7 @@ public class BlueprintPreviewPlacer
     public BlueprintPreviewPlacer(PreviewShower previewShower, BlockValidator blockValidator, BlockService blockService,
         PreviewValidationService previewValidationService, bool treatPreviewsAsSingle, Preview[] previews,
         Placement[] previewPlacements,
-        Blueprint blueprint)
+        Blueprint blueprint, PlaceableBlockObject previewHandler)
     {
         _previewShower = previewShower;
         _blockValidator = blockValidator;
@@ -49,9 +49,10 @@ public class BlueprintPreviewPlacer
         _previewValidationService = previewValidationService;
         _previews = previews;
         _treatPreviewsAsSingle = treatPreviewsAsSingle;
-        _prefabName = SinglePreview.GetComponentFast<Prefab>().PrefabName;
         _previewPlacements = previewPlacements;
         Blueprint = blueprint;
+        _prefabName = SinglePreview.GetComponentFast<Prefab>().PrefabName;
+        PreviewHandler = previewHandler;
     }
 
     #region PersonalCode
@@ -63,7 +64,7 @@ public class BlueprintPreviewPlacer
         var placements = _previewPlacements
             .Select(previewPlacement => new Placement(anchorCoordinate + previewPlacement.Coordinates,
                 previewPlacement.Orientation, previewPlacement.FlipMode));
-
+        
         ShowPreviews(placements);
     }
 
@@ -247,8 +248,7 @@ public class BlueprintPreviewPlacer
 
     private bool AnyPreviewIsAlmostValid()
     {
-        var previews = _previews;
-        foreach (var preview in previews)
+        foreach (var preview in _previews)
         {
             if (PreviewAlmostValid(preview))
             {

@@ -45,7 +45,8 @@ public class BlueprintPreviewPlacerFactory
             true,
             previews,
             blueprint.BlueprintItems.Select(item => item.Placement).ToArray(),
-            blueprint
+            blueprint,
+            GetPlaceableBlockObjectPreviewHandler(blueprint.BlueprintItems)
         );
     }
 
@@ -62,5 +63,10 @@ public class BlueprintPreviewPlacerFactory
         }
 
         return previews;
+    }
+    
+    private PlaceableBlockObject GetPlaceableBlockObjectPreviewHandler(IReadOnlyList<BlueprintItem> blueprintItems)
+    {
+        return _prefabNameMapper.GetPrefab(blueprintItems[0].TemplateName).GetComponentFast<PlaceableBlockObject>();
     }
 }

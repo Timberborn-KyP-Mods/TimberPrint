@@ -1,0 +1,12 @@
+{
+  "Id": "Blueprint.PlacerTool",
+  "GroupId": "TimberPrint",
+  "LocKey": "Blueprint.PlacerTool",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/Keyboard/v",
+    "InputModifiers": {
+      "Value": "Shift"
+    }
+  }
+}

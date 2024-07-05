@@ -11,9 +11,11 @@ public class BlueprintConfigurator : IConfigurator
         containerDefinition.Bind<BlueprintRepository>().AsSingleton();
         containerDefinition.Bind<BlueprintPreviewPlacerFactory>().AsSingleton();
         containerDefinition.Bind<BlueprintService>().AsSingleton();
-        containerDefinition.Bind<BlueprintPlacer>().AsSingleton();
-        // containerDefinition.Bind<FakeTool>().AsSingleton();
+        containerDefinition.Bind<BlueprintCompressor>().AsSingleton();
+        containerDefinition.Bind<BluePrintSharing>().AsSingleton();
 
+        containerDefinition.Bind<BlueprintPlacerTool>().AsSingleton();
+        containerDefinition.Bind<BlueprintPlacerButton>().AsSingleton();
         containerDefinition.Bind<BlueprintAreaSelectorButton>().AsSingleton();
         containerDefinition.Bind<BlueprintAreaSelectorTool>().AsSingleton();
         containerDefinition.MultiBind<BottomBarModule>().ToProvider<BottomBarModuleProvider>().AsSingleton();
@@ -22,16 +24,20 @@ public class BlueprintConfigurator : IConfigurator
     public class BottomBarModuleProvider : IProvider<BottomBarModule>
     {
         private readonly BlueprintAreaSelectorButton _blueprintAreaSelectorButton;
+        
+        private readonly BlueprintPlacerButton _blueprintPlacerButton;
 
-        public BottomBarModuleProvider(BlueprintAreaSelectorButton blueprintAreaSelectorButton)
+        public BottomBarModuleProvider(BlueprintAreaSelectorButton blueprintAreaSelectorButton, BlueprintPlacerButton blueprintPlacerButton)
         {
             _blueprintAreaSelectorButton = blueprintAreaSelectorButton;
+            _blueprintPlacerButton = blueprintPlacerButton;
         }
 
         public BottomBarModule Get()
         {
             var builder = new BottomBarModule.Builder();
             builder.AddRightSectionElement(_blueprintAreaSelectorButton);
+            builder.AddRightSectionElement(_blueprintPlacerButton);
             return builder.Build();
         }
     }

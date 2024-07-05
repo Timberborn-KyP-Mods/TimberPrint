@@ -1,0 +1,5 @@
+ID,Text,Comment
+KeyBindingGroup.TimberPrint,TimberPrint hotkeys,
+Blueprint.CopyTool,Copy blueprint hotkey,
+Blueprint.OpenDialog,Hotkey to open blueprint loader,
+Blueprint.PlacerTool,Place blueprint hotkey,

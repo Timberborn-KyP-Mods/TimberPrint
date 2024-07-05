@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Timberborn.AreaSelectionSystem;
@@ -13,7 +12,7 @@ using UnityEngine;
 
 namespace TimberPrint;
 
-public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSingleton, IConstructionModeEnabler
+public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSingleton
 {
     private readonly InputService _inputService;
 
@@ -27,13 +26,17 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
 
     private readonly BlueprintRepository _blueprintRepository;
 
+    private readonly ToolManager _toolManager;
+    
+    private readonly ConstructionModeService _constructionModeService;
+
     private BlockObjectSelectionDrawer _blockObjectSelectionDrawer = null!;
 
     private AreaBlockObjectPicker _areaBlockObjectPicker = null!;
 
     public BlueprintAreaSelectorTool(InputService inputService,
         BlockObjectSelectionDrawerFactory blockObjectSelectionDrawerFactory, Colors colors,
-        AreaBlockObjectPickerFactory areaBlockObjectPickerFactory, PrefabNameRetriever prefabNameRetriever, BlueprintRepository blueprintRepository)
+        AreaBlockObjectPickerFactory areaBlockObjectPickerFactory, PrefabNameRetriever prefabNameRetriever, BlueprintRepository blueprintRepository, ToolManager toolManager, ConstructionModeService constructionModeService)
     {
         _inputService = inputService;
         _blockObjectSelectionDrawerFactory = blockObjectSelectionDrawerFactory;
@@ -41,32 +44,49 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
         _areaBlockObjectPickerFactory = areaBlockObjectPickerFactory;
         _prefabNameRetriever = prefabNameRetriever;
         _blueprintRepository = blueprintRepository;
+        _toolManager = toolManager;
+        _constructionModeService = constructionModeService;
     }
 
     public void Load()
     {
         _blockObjectSelectionDrawer = _blockObjectSelectionDrawerFactory.Create(_colors.DeletedObjectHighlightColor,
             _colors.DeletedAreaTileColor, _colors.DeletedAreaSideColor);
+        
+        _inputService.AddInputProcessor(this);
     }
 
     public override void Enter()
     {
-        _inputService.AddInputProcessor(this);
+        _constructionModeService.EnterConstructionMode();
         _areaBlockObjectPicker = _areaBlockObjectPickerFactory.CreatePickingUpwards();
     }
-
 
     public override void Exit()
     {
         ShowNoneCallback();
-        _inputService.RemoveInputProcessor(this);
-        ShowNoneCallback();
+        _constructionModeService.ExitConstructionMode();
     }
 
     public bool ProcessInput()
     {
+        HandleToolActivator();
+
+        if (_toolManager.ActiveTool != this)
+        {
+            return false;
+        }
+        
         return _areaBlockObjectPicker.PickBlockObjects<PlaceableBlockObject>(PreviewCallback, ActionCallback,
             ShowNoneCallback);
+    }
+    
+    private void HandleToolActivator()
+    {
+        if(_toolManager.ActiveTool != this && _inputService.IsKeyDown("Blueprint.CopyTool"))
+        {
+            _toolManager.SwitchTool(this);
+        }
     }
 
     private void PreviewCallback(
@@ -113,28 +133,9 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
     }
 
     private void ShowNoneCallback() => _blockObjectSelectionDrawer.StopDrawing();
-
-    private static (Vector3Int, Vector3Int) NormalizeCoordinates(Vector3Int start, Vector3Int end)
-    {
-        var minX = Math.Min(start.x, end.x);
-        var minY = Math.Min(start.y, end.y);
-
-        var maxX = Math.Max(start.x, end.x);
-        var maxY = Math.Max(start.y, end.y);
-
-        return (new Vector3Int(minX, minY, start.z), new Vector3Int(maxX, maxY, start.z));
-    }
     
     private static Vector3Int GetRelativeBlockCoordinates(Vector3Int startingCoordinates, Vector3Int blockObjectCoordinates)
     {
         return blockObjectCoordinates - startingCoordinates;
-    }
-
-    private static Vector3Int GetFirstBlockObjectPosition(IEnumerable<BlockObject> blockObjects)
-    {
-        return blockObjects
-            .OrderBy(o => o.Placement.Coordinates.x)
-            .ThenBy(o => o.Placement.Coordinates.y)
-            .First().Coordinates;
     }
 }

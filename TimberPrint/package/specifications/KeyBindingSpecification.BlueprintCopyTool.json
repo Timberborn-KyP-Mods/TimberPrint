@@ -1,0 +1,12 @@
+{
+  "Id": "Blueprint.CopyTool",
+  "GroupId": "TimberPrint",
+  "LocKey": "Blueprint.CopyTool",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/Keyboard/c",
+    "InputModifiers": {
+      "Value": "Shift"
+    }
+  }
+}
