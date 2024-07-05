@@ -1,0 +1,9 @@
+{
+  "Id": "BluePrint",
+  "GroupId": "Time",
+  "LocKey": "My BluePrint Key",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/Keyboard/8"
+  }
+}
