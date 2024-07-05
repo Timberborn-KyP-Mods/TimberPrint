@@ -5,7 +5,7 @@ namespace TimberPrint;
 
 public class BlueprintAreaSelectorButton : IBottomBarElementProvider
 {
-    private static readonly string ToolImageKey = "Cursor";
+    private static readonly string ToolImageKey = "copy_icon";
     
     private readonly BlueprintAreaSelectorTool _blueprintAreaSelectorTool;
     

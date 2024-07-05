@@ -48,9 +48,9 @@ public class BlueprintService
         return false;
     }
 
-    public void PlaceBlueprint(BlueprintPreviewPlacer blueprintPreviewPlacer, Vector3Int coordinate)
+    public void PlaceBlueprint(BlueprintPreviewPlacer blueprintPreviewPlacer, Vector3Int coordinate, Orientation orientation)
     {
-        var placements = blueprintPreviewPlacer.GetBuildableCoordinates(coordinate).ToArray();
+        var placements = blueprintPreviewPlacer.GetBuildableCoordinates(coordinate, orientation).ToArray();
 
         if (placements.Length == 0)
         {

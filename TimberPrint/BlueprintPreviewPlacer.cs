@@ -57,25 +57,30 @@ public class BlueprintPreviewPlacer
 
     #region PersonalCode
 
-    public void Show(Vector3Int anchorCoordinate, Orientation orientation = Orientation.Cw0)
+    public void Show(Vector3Int anchorCoordinate, Orientation orientation)
     {
         _bottomHeight = anchorCoordinate.z;
         
-        var placements = _previewPlacements
-            .Select(previewPlacement => new Placement(anchorCoordinate + previewPlacement.Coordinates,
-                previewPlacement.Orientation, previewPlacement.FlipMode));
+        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation));
         
         ShowPreviews(placements);
     }
 
-    public IEnumerable<Placement> GetBuildableCoordinates(Vector3Int anchorCoordinate,
-        Orientation orientation = Orientation.Cw0)
+    public IEnumerable<Placement> GetBuildableCoordinates(Vector3Int anchorCoordinate, Orientation orientation)
     {
-        var placements = _previewPlacements
-            .Select(previewPlacement => new Placement(anchorCoordinate + previewPlacement.Coordinates,
-                previewPlacement.Orientation, previewPlacement.FlipMode));
+        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation));
 
         return GetBuildableCoordinates(placements);
+    }
+    
+    private static Placement GetRotatedPlacement(Placement originalPlacement, Vector3Int anchorCoordinate, Orientation orientation)
+    {
+        return new Placement(anchorCoordinate + orientation.Transform(originalPlacement.Coordinates), RotateOrientation(originalPlacement.Orientation, orientation), originalPlacement.FlipMode);
+    }
+    
+    private static Orientation RotateOrientation(Orientation old, Orientation add)
+    {
+        return (Orientation)(((int)old + (int)add) % 4);
     }
 
     #endregion
