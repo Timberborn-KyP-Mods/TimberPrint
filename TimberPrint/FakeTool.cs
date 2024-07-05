@@ -1,6 +1,7 @@
 using Timberborn.CursorToolSystem;
 using Timberborn.InputSystem;
 using Timberborn.SingletonSystem;
+using UnityEngine;
 
 namespace TimberPrint;
 
@@ -34,6 +35,7 @@ public class FakeTool : IInputProcessor, ILoadableSingleton
         if (_blueprintPreviewPlacer != null)
         {
             _blueprintPreviewPlacer.Show(cursorCoordinates.Value.TileCoordinates);
+            Debug.LogWarning(cursorCoordinates.Value.TileCoordinates);
         }
 
         if (!_inputService.IsKeyDown("BluePrint"))

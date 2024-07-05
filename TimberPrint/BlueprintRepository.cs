@@ -12,9 +12,9 @@ public class BlueprintRepository : ILoadableSingleton
     {
         _blueprint = new Blueprint(new BlueprintItem[]
         {
-            new("BeaverStatue.Folktails", new Vector3Int(1, 0, 0), Orientation.Cw0, FlipMode.Unflipped),
-            new("BeaverStatue.Folktails", new Vector3Int(2, 0, 0), Orientation.Cw90, FlipMode.Unflipped),
-            new("BeaverStatue.Folktails", new Vector3Int(3, 0, 0), Orientation.Cw180, FlipMode.Unflipped),
+            new("BeaverStatue.Folktails", new Vector3Int(1, 0, 1), Orientation.Cw0, FlipMode.Unflipped),
+            new("BeaverStatue.Folktails", new Vector3Int(2, 0, 1), Orientation.Cw90, FlipMode.Unflipped),
+            new("BeaverStatue.Folktails", new Vector3Int(3, 0, 1), Orientation.Cw180, FlipMode.Unflipped),
             new("BeaverStatue.Folktails", new Vector3Int(4, 0, 0), Orientation.Cw270, FlipMode.Unflipped),
 
             new("Bench.Folktails", new Vector3Int(1, 2, 0), Orientation.Cw0, FlipMode.Unflipped),

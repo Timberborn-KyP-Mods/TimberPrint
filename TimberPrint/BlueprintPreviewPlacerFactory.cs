@@ -3,6 +3,7 @@ using System.Linq;
 using Timberborn.BlockSystem;
 using Timberborn.PrefabSystem;
 using Timberborn.PreviewSystem;
+using UnityEngine;
 
 namespace TimberPrint;
 
@@ -41,7 +42,7 @@ public class BlueprintPreviewPlacerFactory
             _blockValidator,
             _blockService,
             _previewValidationService,
-            false,
+            true,
             previews,
             blueprint.BlueprintItems.Select(item => item.Placement).ToArray(),
             blueprint
