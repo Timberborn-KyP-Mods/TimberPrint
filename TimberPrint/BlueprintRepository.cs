@@ -6,18 +6,11 @@ using TimberPrint.BlueprintControl;
 
 namespace TimberPrint;
 
-public class BlueprintRepository
+public class BlueprintRepository(EventBus eventBus)
 {
-    private readonly EventBus _eventBus;
-    
     public IEnumerable<Blueprint> Blueprints => _blueprints.Values;
     
     private readonly Dictionary<Guid, Blueprint> _blueprints = new();
-
-    public BlueprintRepository(EventBus eventBus)
-    {
-        _eventBus = eventBus;
-    }
 
     public bool TryGet(Guid guid, [NotNullWhen(true)] out Blueprint? blueprint)
     {
@@ -27,7 +20,7 @@ public class BlueprintRepository
     public void Add(Blueprint blueprint)
     {
         _blueprints.Add(blueprint.Guid, blueprint);
-        _eventBus.Post(new BlueprintRepositoryChangedEvent());
+        eventBus.Post(new BlueprintRepositoryChangedEvent());
     }
 
     public void Remove(Guid blueprintGuid)

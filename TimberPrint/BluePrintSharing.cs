@@ -8,32 +8,19 @@ using UnityEngine.UIElements;
 
 namespace TimberPrint;
 
-public class BluePrintSharing : IPanelController, ILoadableSingleton, IInputProcessor
+public class BluePrintSharing(
+    PanelStack panelStack,
+    DialogBoxShower dialogBoxShower,
+    VisualElementLoader visualElementLoader,
+    BlueprintService blueprintService,
+    InputService inputService)
+    : IPanelController, ILoadableSingleton, IInputProcessor
 {
-    private readonly PanelStack _panelStack;
-
-    private readonly BlueprintService _blueprintService;
-
-    private readonly DialogBoxShower _dialogBoxShower;
-
-    private readonly InputService _inputService;
-
     private TextField _input = null!;
-
-    private readonly VisualElementLoader _visualElementLoader;
 
     private readonly string _initialSettlementName = "Paste your blueprint code";
 
     private VisualElement _root = null!;
-
-    public BluePrintSharing(PanelStack panelStack, DialogBoxShower dialogBoxShower, VisualElementLoader visualElementLoader, BlueprintService blueprintService, InputService inputService)
-    {
-        _panelStack = panelStack;
-        _dialogBoxShower = dialogBoxShower;
-        _visualElementLoader = visualElementLoader;
-        _blueprintService = blueprintService;
-        _inputService = inputService;
-    }
 
     public VisualElement GetPanel()
     {
@@ -53,12 +40,12 @@ public class BluePrintSharing : IPanelController, ILoadableSingleton, IInputProc
         {
             try
             {
-                _blueprintService.AddBlueprint(BlueprintCompressor.DecodeBlueprintString(text));
-                _panelStack.Pop(this);
+                blueprintService.AddBlueprint(BlueprintCompressor.DecodeBlueprintString(text));
+                panelStack.Pop(this);
             }
             catch (Exception e)
             {
-                var dialogShower = _dialogBoxShower.Create();
+                var dialogShower = dialogBoxShower.Create();
                 dialogShower.AddContent(new Label("Something went wrong loading the Blueprint data, are you sure you copied it correctly?")
                 {
                     style = { color = Color.white}
@@ -71,12 +58,12 @@ public class BluePrintSharing : IPanelController, ILoadableSingleton, IInputProc
     
     public void OnUICancelled()
     {
-        _panelStack.Pop(this);
+        panelStack.Pop(this);
     }
 
     private void Show()
     {
-        if(_blueprintService.TryLoadBlueprint(out var blueprint))
+        if(blueprintService.TryLoadBlueprint(out var blueprint))
         {
             _input.text = BlueprintCompressor.CompressToBase64(blueprint.Blueprint);
         } 
@@ -85,12 +72,12 @@ public class BluePrintSharing : IPanelController, ILoadableSingleton, IInputProc
             _input.text = _initialSettlementName;
         }
         
-        _panelStack.HideAndPushOverlay(this);
+        panelStack.HideAndPushOverlay(this);
     }
 
     public void Load()
     {
-        _root = _visualElementLoader.LoadVisualElement("Game/SettlementNameBox");
+        _root = visualElementLoader.LoadVisualElement("Game/SettlementNameBox");
         _input = _root.Q<TextField>("Input");
         _input.style.maxWidth = 600;
         
@@ -104,12 +91,12 @@ public class BluePrintSharing : IPanelController, ILoadableSingleton, IInputProc
         _root.Q<Button>("ConfirmButton").text = "Load blueprint";
         _root.Q<Button>("ConfirmButton").clicked += Confirmed;
         
-        _inputService.AddInputProcessor(this);
+        inputService.AddInputProcessor(this);
     }
 
     public bool ProcessInput()
     {
-        if(_inputService.IsKeyDown("Blueprint.OpenDialog"))
+        if(inputService.IsKeyDown("Blueprint.OpenDialog"))
         {
             Show();
         }

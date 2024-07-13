@@ -3,15 +3,9 @@ using UnityEngine;
 
 namespace TimberPrint;
 
-public class BlueprintItem
+public class BlueprintItem(string templateName, Vector3Int coordinates, Orientation orientation, FlipMode flipMode)
 {
-    public BlueprintItem(string templateName, Vector3Int coordinates, Orientation orientation, FlipMode flipMode)
-    {
-        TemplateName = templateName;
-        Placement = new Placement(coordinates, orientation, flipMode);
-    }
+    public string TemplateName { get; } = templateName;
 
-    public string TemplateName { get; }
-
-    public Placement Placement { get; }
+    public Placement Placement { get; } = new(coordinates, orientation, flipMode);
 }

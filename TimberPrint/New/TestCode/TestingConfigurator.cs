@@ -13,20 +13,13 @@ public class TestingConfigurator : IConfigurator
         containerDefinition.MultiBind<BottomBarModule>().ToProvider<BottomBarModuleProvider>().AsSingleton();
     }
     
-    public class BottomBarModuleProvider : IProvider<BottomBarModule>
+    public class BottomBarModuleProvider(MouseTestingButton mouseTestingButton) : IProvider<BottomBarModule>
     {
-        private readonly MouseTestingButton _mouseTestingButton;
-
-        public BottomBarModuleProvider(MouseTestingButton mouseTestingButton)
-        {
-            _mouseTestingButton = mouseTestingButton;
-        }
-
         public BottomBarModule Get()
         {
             var builder = new BottomBarModule.Builder();
             
-            builder.AddRightSectionElement(_mouseTestingButton);
+            builder.AddRightSectionElement(mouseTestingButton);
             
             return builder.Build();
         }

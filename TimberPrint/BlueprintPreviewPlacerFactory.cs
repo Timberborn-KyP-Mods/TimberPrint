@@ -7,41 +7,23 @@ using UnityEngine;
 
 namespace TimberPrint;
 
-public class BlueprintPreviewPlacerFactory
+public class BlueprintPreviewPlacerFactory(
+    PreviewFactory previewFactory,
+    PrefabNameMapper prefabNameMapper,
+    PreviewShower previewShower,
+    BlockValidator blockValidator,
+    BlockService blockService,
+    PreviewValidationService previewValidationService)
 {
-    private readonly PreviewFactory _previewFactory;
-
-    private readonly PrefabNameMapper _prefabNameMapper;
-
-    private readonly PreviewShower _previewShower;
-
-    private readonly BlockValidator _blockValidator;
-
-    private readonly BlockService _blockService;
-
-    private readonly PreviewValidationService _previewValidationService;
-
-    public BlueprintPreviewPlacerFactory(PreviewFactory previewFactory, PrefabNameMapper prefabNameMapper,
-        PreviewShower previewShower, BlockValidator blockValidator, BlockService blockService,
-        PreviewValidationService previewValidationService)
-    {
-        _previewFactory = previewFactory;
-        _prefabNameMapper = prefabNameMapper;
-        _previewShower = previewShower;
-        _blockValidator = blockValidator;
-        _blockService = blockService;
-        _previewValidationService = previewValidationService;
-    }
-
     public BlueprintPreviewPlacer Create(Blueprint blueprint)
     {
         var previews = CreatePreviews(blueprint.BlueprintItems);
 
         return new BlueprintPreviewPlacer(
-            _previewShower,
-            _blockValidator,
-            _blockService,
-            _previewValidationService,
+            previewShower,
+            blockValidator,
+            blockService,
+            previewValidationService,
             true,
             previews,
             blueprint.BlueprintItems.Select(item => item.Placement).ToArray(),
@@ -56,8 +38,8 @@ public class BlueprintPreviewPlacerFactory
 
         for (var index = 0; index < blueprintItems.Count; index++)
         {
-            var prefab = _prefabNameMapper.GetPrefab(blueprintItems[index].TemplateName);
-            var preview = _previewFactory.Create(prefab.GetComponentFast<PlaceableBlockObject>());
+            var prefab = prefabNameMapper.GetPrefab(blueprintItems[index].TemplateName);
+            var preview = previewFactory.Create(prefab.GetComponentFast<PlaceableBlockObject>());
             preview.GetComponentFast<BlockObject>().MarkAsPreview();
             previews[index] = preview;
         }
@@ -67,6 +49,6 @@ public class BlueprintPreviewPlacerFactory
     
     private PlaceableBlockObject GetPlaceableBlockObjectPreviewHandler(IReadOnlyList<BlueprintItem> blueprintItems)
     {
-        return _prefabNameMapper.GetPrefab(blueprintItems[0].TemplateName).GetComponentFast<PlaceableBlockObject>();
+        return prefabNameMapper.GetPrefab(blueprintItems[0].TemplateName).GetComponentFast<PlaceableBlockObject>();
     }
 }

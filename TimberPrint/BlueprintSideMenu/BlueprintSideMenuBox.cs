@@ -12,47 +12,28 @@ using UnityEngine.UIElements;
 
 namespace TimberPrint.BlueprintSideMenu;
 
-public class BlueprintSideMenuBox : ILoadableSingleton, IPanelController, IInputProcessor, IPostLoadableSingleton
+public class BlueprintSideMenuBox(
+	VisualElementLoader visualElementLoader,
+	UILayout uiLayout,
+	PanelStack panelStack,
+	CameraHorizontalShifter cameraHorizontalShifter,
+	InputService inputService,
+	EventBus eventBus,
+	BlueprintSideMenuTabController blueprintSideMenuTabController,
+	IHideableByBatchControl hideableByBatchControl)
+	: ILoadableSingleton, IPanelController, IInputProcessor, IPostLoadableSingleton
 {
 	private static readonly string ToggleBatchControlBoxKey = "ToggleBatchControlBox";
 
 	private static readonly float CameraOffset = -0.2f;
 
-	private readonly VisualElementLoader _visualElementLoader;
-
-	private readonly UILayout _uiLayout;
-
-	private readonly PanelStack _panelStack;
-
-	private readonly CameraHorizontalShifter _cameraHorizontalShifter;
-
-	private readonly InputService _inputService;
-
-	private readonly EventBus _eventBus;
-
-	private readonly BlueprintSideMenuTabController _blueprintSideMenuTabController;
-
-	private readonly IHideableByBatchControl _hideableByBatchControl;
-
 	private VisualElement _root = null!;
 
-	public BlueprintSideMenuBox(VisualElementLoader visualElementLoader, UILayout uiLayout, PanelStack panelStack, CameraHorizontalShifter cameraHorizontalShifter, InputService inputService, EventBus eventBus, BlueprintSideMenuTabController blueprintSideMenuTabController, IHideableByBatchControl hideableByBatchControl)
-	{
-		_visualElementLoader = visualElementLoader;
-		_uiLayout = uiLayout;
-		_panelStack = panelStack;
-		_cameraHorizontalShifter = cameraHorizontalShifter;
-		_inputService = inputService;
-		_eventBus = eventBus;
-		_blueprintSideMenuTabController = blueprintSideMenuTabController;
-		_hideableByBatchControl = hideableByBatchControl;
-	}
-	
 	public void Load()
 	{
-		_root = _visualElementLoader.LoadVisualElement("Game/BatchControl/BatchControlBox");
+		_root = visualElementLoader.LoadVisualElement("Game/BatchControl/BatchControlBox");
 		
-		_blueprintSideMenuTabController.Initialize(_root);
+		blueprintSideMenuTabController.Initialize(_root);
 
 		_root.Q<Button>("CancelButton").RegisterCallback<ClickEvent>(delegate
 		{
@@ -65,16 +46,16 @@ public class BlueprintSideMenuBox : ILoadableSingleton, IPanelController, IInput
 		
 		_root.Q<Dropdown>("DistrictDropdown").ToggleDisplayStyle(false);
 		
-		_eventBus.Register(this);
+		eventBus.Register(this);
 	}
 
 	public VisualElement GetPanel()
 	{
-		_uiLayout.HideLeftAndCenterItems();
-		_hideableByBatchControl.Hide();
-		_cameraHorizontalShifter.EnableHorizontalCameraShift(CameraOffset);
-		_blueprintSideMenuTabController.UpdateEntities();
-		_inputService.AddInputProcessor(this);
+		uiLayout.HideLeftAndCenterItems();
+		hideableByBatchControl.Hide();
+		cameraHorizontalShifter.EnableHorizontalCameraShift(CameraOffset);
+		blueprintSideMenuTabController.UpdateEntities();
+		inputService.AddInputProcessor(this);
 		return _root;
 	}
 
@@ -90,7 +71,7 @@ public class BlueprintSideMenuBox : ILoadableSingleton, IPanelController, IInput
 
 	public bool ProcessInput()
 	{
-		if (_inputService.IsKeyDown(ToggleBatchControlBoxKey))
+		if (inputService.IsKeyDown(ToggleBatchControlBoxKey))
 		{
 			Close();
 			return true;
@@ -100,36 +81,36 @@ public class BlueprintSideMenuBox : ILoadableSingleton, IPanelController, IInput
 
 	public void OpenBatchControlBox()
 	{
-		OpenTab(_blueprintSideMenuTabController.LastOpenedTabIndex);
+		OpenTab(blueprintSideMenuTabController.LastOpenedTabIndex);
 	}
 
 	public void OpenTab(int index)
 	{
-		if (_blueprintSideMenuTabController.CurrentTab != null)
+		if (blueprintSideMenuTabController.CurrentTab != null)
 		{
-			_blueprintSideMenuTabController.ShowTab(index);
+			blueprintSideMenuTabController.ShowTab(index);
 			return;
 		}
-		_panelStack.HideAndPushWithoutPause(this);
-		_blueprintSideMenuTabController.ShowTab(index);
-		_eventBus.Post(new BatchControlBoxShownEvent());
+		panelStack.HideAndPushWithoutPause(this);
+		blueprintSideMenuTabController.ShowTab(index);
+		eventBus.Post(new BatchControlBoxShownEvent());
 	}
 
 	private void Close()
 	{
-		_blueprintSideMenuTabController.Clear();
-		_uiLayout.ShowLeftAndCenterItems();
-		_hideableByBatchControl.Show();
-		_panelStack.Pop(this);
-		_cameraHorizontalShifter.DisableCameraShift();
-		_inputService.RemoveInputProcessor(this);
-		_eventBus.Post(new BatchControlBoxHiddenEvent());
+		blueprintSideMenuTabController.Clear();
+		uiLayout.ShowLeftAndCenterItems();
+		hideableByBatchControl.Show();
+		panelStack.Pop(this);
+		cameraHorizontalShifter.DisableCameraShift();
+		inputService.RemoveInputProcessor(this);
+		eventBus.Post(new BatchControlBoxHiddenEvent());
 	}
 
 	public void PostLoad()
 	{
-		var blueprintButton = _visualElementLoader.LoadVisualElement("OpenBlueprintTab");
+		var blueprintButton = visualElementLoader.LoadVisualElement("OpenBlueprintTab");
 		blueprintButton.Q<NineSliceButton>("OpenBlueprint").clicked += OpenBatchControlBox;
-		_uiLayout.AddTopLeft(blueprintButton, 100);
+		uiLayout.AddTopLeft(blueprintButton, 100);
 	}
 }

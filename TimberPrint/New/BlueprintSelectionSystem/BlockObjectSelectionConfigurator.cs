@@ -8,6 +8,6 @@ public class BlockObjectSelectionConfigurator : IConfigurator
     public void Configure(IContainerDefinition containerDefinition)
     {
         containerDefinition.Bind<BlockObjectSelectionDrawerFactory>().AsSingleton();
-        containerDefinition.Bind<RectangleBoundsDrawerFactory>().AsSingleton();
+        containerDefinition.Bind<TopRectangleBoundsDrawerFactory>().AsSingleton();
     }
 }

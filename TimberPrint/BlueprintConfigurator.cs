@@ -22,23 +22,16 @@ public class BlueprintConfigurator : IConfigurator
         containerDefinition.MultiBind<BottomBarModule>().ToProvider<BottomBarModuleProvider>().AsSingleton();
     }
     
-    public class BottomBarModuleProvider : IProvider<BottomBarModule>
+    public class BottomBarModuleProvider(
+        BlueprintAreaSelectorButton blueprintAreaSelectorButton,
+        BlueprintPlacerButton blueprintPlacerButton)
+        : IProvider<BottomBarModule>
     {
-        private readonly BlueprintAreaSelectorButton _blueprintAreaSelectorButton;
-        
-        private readonly BlueprintPlacerButton _blueprintPlacerButton;
-
-        public BottomBarModuleProvider(BlueprintAreaSelectorButton blueprintAreaSelectorButton, BlueprintPlacerButton blueprintPlacerButton)
-        {
-            _blueprintAreaSelectorButton = blueprintAreaSelectorButton;
-            _blueprintPlacerButton = blueprintPlacerButton;
-        }
-
         public BottomBarModule Get()
         {
             var builder = new BottomBarModule.Builder();
-            builder.AddRightSectionElement(_blueprintAreaSelectorButton);
-            builder.AddRightSectionElement(_blueprintPlacerButton);
+            builder.AddRightSectionElement(blueprintAreaSelectorButton);
+            builder.AddRightSectionElement(blueprintPlacerButton);
             return builder.Build();
         }
     }

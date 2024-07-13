@@ -4,15 +4,8 @@ using TimberPrint.BlueprintControl;
 
 namespace TimberPrint;
 
-public class BlueprintManager
+public class BlueprintManager(EventBus eventBus)
 {
-    private readonly EventBus _eventBus;
-
-    public BlueprintManager(EventBus eventBus)
-    {
-        _eventBus = eventBus;
-    }
-
     public Blueprint? ActiveBlueprint { get; private set; }
     
     public Blueprint[] RecentBlueprints { get; private set; } = new Blueprint[3];
@@ -22,7 +15,7 @@ public class BlueprintManager
     public void SwitchBlueprint(Blueprint blueprint)
     {
         ActiveBlueprint = blueprint;
-        _eventBus.Post(new ActiveBlueprintChanged());
+        eventBus.Post(new ActiveBlueprintChanged());
     }
 
     public bool TryAddFavorite(Blueprint blueprint)

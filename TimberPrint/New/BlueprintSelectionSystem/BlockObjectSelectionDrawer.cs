@@ -7,14 +7,12 @@ using UnityEngine;
 
 namespace TimberPrint.New.BlueprintSelectionSystem;
 
-public class BlockObjectSelectionDrawer
+public class BlockObjectSelectionDrawer(
+    RectangleBoundsDrawer rectangleBoundsDrawer,
+    RectangleBoundsDrawer topRectangleBoundsDrawer,
+    RollingHighlighter rollingHighlighter,
+    Color blockObjectHighlightColor)
 {
-    private readonly RectangleBoundsDrawer _rectangleBoundsDrawer;
-    
-    private readonly RollingHighlighter _rollingHighlighter;
-    
-    private readonly Color _blockObjectHighlightColor;
-    
     private Vector3Int _start;
     
     private Vector3Int _end;
@@ -22,16 +20,6 @@ public class BlockObjectSelectionDrawer
     private int _height;
     
     private bool _selectingArea;
-
-    public BlockObjectSelectionDrawer(
-        RectangleBoundsDrawer rectangleBoundsDrawer,
-        RollingHighlighter rollingHighlighter,
-        Color blockObjectHighlightColor)
-    {
-        _rectangleBoundsDrawer = rectangleBoundsDrawer;
-        _rollingHighlighter = rollingHighlighter;
-        _blockObjectHighlightColor = blockObjectHighlightColor;
-    }
 
     public void Draw(
         IEnumerable<BlockObject> blockObjects,
@@ -45,17 +33,23 @@ public class BlockObjectSelectionDrawer
         _selectingArea = selectingArea;
         _height = height;
         Draw();
-        _rollingHighlighter.HighlightPrimary(blockObjects, _blockObjectHighlightColor);
+        rollingHighlighter.HighlightPrimary(blockObjects, blockObjectHighlightColor);
     }
 
-    public void StopDrawing() => _rollingHighlighter.UnhighlightAllPrimary();
+    public void StopDrawing() => rollingHighlighter.UnhighlightAllPrimary();
 
     private void Draw()
     {
         if (!_selectingArea)
+        {
             return;
-        _rectangleBoundsDrawer.DrawOnLevel(_start.XY(), _end.XY(), _start.z);
-        
-        _rectangleBoundsDrawer.DrawOnLevel(_start.XY(), _end.XY(), _start.z + _height);
+        }
+            
+        rectangleBoundsDrawer.DrawOnLevel(_start.XY(), _end.XY(), _start.z);
+
+        if (_height > 0)
+        {
+            topRectangleBoundsDrawer.DrawOnLevel(_start.XY(), _end.XY(), _start.z + _height);
+        }
     }
 }
