@@ -30,6 +30,12 @@
             <DestinationSubDirectory>libs/</DestinationSubDirectory>
         </Reference>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="TimberPrint.Unity">
+        <HintPath>C:\Users\KYPremco\Documents\Timberborn\Mods\TimberPrint\Scripts\TimberPrint.Unity.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 
     <Target Name="CopyingFilesToTimberborn" BeforeTargets="AfterBuild" Condition="$(CopyDllToPath)">
         <ItemGroup>
