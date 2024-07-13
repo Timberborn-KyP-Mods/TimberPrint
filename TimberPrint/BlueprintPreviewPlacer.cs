@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Timberborn.BlockSystem;
@@ -26,6 +27,8 @@ public class BlueprintPreviewPlacer
 
     private readonly List<Placement> _coordinatesCache = new();
 
+    private readonly int _width;
+
     public string WarningText { get; private set; } = "";
 
     public Blueprint Blueprint { get; }
@@ -53,34 +56,42 @@ public class BlueprintPreviewPlacer
         Blueprint = blueprint;
         _prefabName = SinglePreview.GetComponentFast<Prefab>().PrefabName;
         PreviewHandler = previewHandler;
+        
+        var minY = _previewPlacements.Min(p => p.Coordinates.y);
+        var maxY = _previewPlacements.Max(p => p.Coordinates.y);
+        _width = Math.Abs(minY - maxY);
     }
 
     #region PersonalCode
 
-    public void Show(Vector3Int anchorCoordinate, Orientation orientation)
+    public void Show(Vector3Int anchorCoordinate, Orientation orientation, bool flip)
     {
         _bottomHeight = anchorCoordinate.z;
         
-        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation));
+        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation, flip));
         
         ShowPreviews(placements);
     }
 
-    public IEnumerable<Placement> GetBuildableCoordinates(Vector3Int anchorCoordinate, Orientation orientation)
+    public IEnumerable<Placement> GetBuildableCoordinates(Vector3Int anchorCoordinate, Orientation orientation, bool flip)
     {
-        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation));
+        var placements = _previewPlacements.Select(previewPlacement => GetRotatedPlacement(previewPlacement, anchorCoordinate, orientation, flip));
 
         return GetBuildableCoordinates(placements);
     }
     
-    private static Placement GetRotatedPlacement(Placement originalPlacement, Vector3Int anchorCoordinate, Orientation orientation)
+    private Placement GetRotatedPlacement(Placement originalPlacement, Vector3Int anchorCoordinate, Orientation orientation, bool flip)
     {
-        return new Placement(anchorCoordinate + orientation.Transform(originalPlacement.Coordinates), RotateOrientation(originalPlacement.Orientation, orientation), originalPlacement.FlipMode);
+        var flippedCoordinates = flip ? Flip(originalPlacement.Coordinates) : originalPlacement.Coordinates;
+        var flippedOrientation = originalPlacement.Orientation.Rotate(flip ? Orientation.Cw180 : Orientation.Cw0);
+        
+        
+        return new Placement(anchorCoordinate + orientation.Transform(flippedCoordinates), flippedOrientation.Rotate(orientation), originalPlacement.FlipMode);
     }
     
-    private static Orientation RotateOrientation(Orientation old, Orientation add)
+    private Vector3Int Flip(Vector3Int coordinates)
     {
-        return (Orientation)(((int)old + (int)add) % 4);
+        return new Vector3Int(-coordinates.x, coordinates.y, coordinates.z);
     }
 
     #endregion

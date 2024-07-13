@@ -1,25 +1,37 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Timberborn.SingletonSystem;
+using TimberPrint.BlueprintControl;
 
 namespace TimberPrint;
 
 public class BlueprintRepository
 {
-    private Blueprint? _blueprint;
+    private readonly EventBus _eventBus;
+    
+    public IEnumerable<Blueprint> Blueprints => _blueprints.Values;
+    
+    private readonly Dictionary<Guid, Blueprint> _blueprints = new();
 
-    public bool TryGet([NotNullWhen(true)] out Blueprint? blueprint)
+    public BlueprintRepository(EventBus eventBus)
     {
-        if (_blueprint != null)
-        {
-            blueprint = _blueprint;
-            return true;
-        }
-        
-        blueprint = null;
-        return false;
+        _eventBus = eventBus;
+    }
+
+    public bool TryGet(Guid guid, [NotNullWhen(true)] out Blueprint? blueprint)
+    {
+        return _blueprints.TryGetValue(guid, out blueprint);
     }
 
     public void Add(Blueprint blueprint)
     {
-        _blueprint = blueprint;
+        _blueprints.Add(blueprint.Guid, blueprint);
+        _eventBus.Post(new BlueprintRepositoryChangedEvent());
+    }
+
+    public void Remove(Guid blueprintGuid)
+    {
+        _blueprints.Remove(blueprintGuid);
     }
 }

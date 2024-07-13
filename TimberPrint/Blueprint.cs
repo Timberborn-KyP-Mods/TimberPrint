@@ -8,10 +8,16 @@ namespace TimberPrint;
 
 public class Blueprint
 {
+    public Guid Guid { get; }
+
+    public string Name { get; }
+    
     public BlueprintItem[] BlueprintItems { get; }
 
-    public Blueprint(BlueprintItem[] blueprintItems)
+    public Blueprint(string name, BlueprintItem[] blueprintItems)
     {
+        Guid = Guid.NewGuid();
+        Name = name;
         BlueprintItems = blueprintItems;
     }
     
@@ -36,6 +42,7 @@ public class Blueprint
         }
 
         BlueprintItems = items.ToArray();
+        Name = "test";
     }
 
     public string ConvertToString()

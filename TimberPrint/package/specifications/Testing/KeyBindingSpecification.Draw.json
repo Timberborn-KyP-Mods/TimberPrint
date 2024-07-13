@@ -1,0 +1,9 @@
+{
+  "Id": "Draw",
+  "GroupId": "TimberPrint",
+  "LocKey": "Draw",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/num/9"
+  }
+}

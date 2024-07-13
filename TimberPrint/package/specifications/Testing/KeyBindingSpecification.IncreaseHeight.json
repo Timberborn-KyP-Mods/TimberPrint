@@ -1,0 +1,9 @@
+{
+  "Id": "IncreaseHeight",
+  "GroupId": "TimberPrint",
+  "LocKey": "IncreaseHeight",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/numpad/7"
+  }
+}

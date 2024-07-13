@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
 using Timberborn.BlockObjectTools;
 using Timberborn.BlockSystem;
 using Timberborn.Coordinates;
@@ -25,22 +23,25 @@ public class BlueprintService
 
     private readonly UISoundController _uiSoundController;
 
+    private readonly BlueprintManager _blueprintManager;
+
     public BlueprintService(BlueprintRepository blueprintRepository,
         BlueprintPreviewPlacerFactory blueprintPreviewPlacerFactory, BlockObjectPlacerService blockObjectPlacerService,
-        PrefabNameMapper prefabNameMapper, UISoundController uiSoundController)
+        PrefabNameMapper prefabNameMapper, UISoundController uiSoundController, BlueprintManager blueprintManager)
     {
         _blueprintRepository = blueprintRepository;
         _blueprintPreviewPlacerFactory = blueprintPreviewPlacerFactory;
         _blockObjectPlacerService = blockObjectPlacerService;
         _prefabNameMapper = prefabNameMapper;
         _uiSoundController = uiSoundController;
+        _blueprintManager = blueprintManager;
     }
 
     public bool TryLoadBlueprint([NotNullWhen(true)] out BlueprintPreviewPlacer? blueprintPreviewPlacer)
     {
-        if (_blueprintRepository.TryGet(out var blueprint))
+        if (_blueprintManager.ActiveBlueprint != null)
         {
-            blueprintPreviewPlacer = _blueprintPreviewPlacerFactory.Create(blueprint);
+            blueprintPreviewPlacer = _blueprintPreviewPlacerFactory.Create(_blueprintManager.ActiveBlueprint);
             return true;
         }
 
@@ -48,9 +49,9 @@ public class BlueprintService
         return false;
     }
 
-    public void PlaceBlueprint(BlueprintPreviewPlacer blueprintPreviewPlacer, Vector3Int coordinate, Orientation orientation)
+    public void PlaceBlueprint(BlueprintPreviewPlacer blueprintPreviewPlacer, Vector3Int coordinate, Orientation orientation, bool flip)
     {
-        var placements = blueprintPreviewPlacer.GetBuildableCoordinates(coordinate, orientation).ToArray();
+        var placements = blueprintPreviewPlacer.GetBuildableCoordinates(coordinate, orientation, flip).ToArray();
 
         if (placements.Length == 0)
         {

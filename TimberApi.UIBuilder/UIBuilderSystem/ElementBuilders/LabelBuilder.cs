@@ -4,43 +4,59 @@ using UnityEngine.UIElements;
 
 namespace TimberApi.UIBuilder.UIBuilderSystem.ElementBuilders
 {
-    public class LabelBuilder : BaseElementBuilder<LabelBuilder, LocalizableLabel>
+    public class LocalizableLabelBuilder : LabelBuilder<LocalizableLabelBuilder, LocalizableLabel>
+    {
+        protected override LocalizableLabelBuilder BuilderInstance => this;
+
+        public LocalizableLabelBuilder SetLocKey(string key)
+        {
+            Root._textLocKey = key;
+            return BuilderInstance;
+        }
+    }
+
+    public class LabelBuilder : LabelBuilder<LabelBuilder, Label>
     {
         protected override LabelBuilder BuilderInstance => this;
 
-        public LabelBuilder SetLocKey(string key)
+        public LabelBuilder SetText(string text)
         {
-            Root._textLocKey = key;
-            return this;
+            Root.text = text;
+            return BuilderInstance;
         }
-
-        public LabelBuilder SetColor(StyleColor color)
+    }
+    
+    public abstract class LabelBuilder<TBuilder, TElement> : BaseElementBuilder<TBuilder, TElement>
+        where TBuilder : BaseElementBuilder<TBuilder, TElement>
+        where TElement : Label, new()
+    {
+        public TBuilder SetColor(StyleColor color)
         {
             Root.style.color = color;
-            return this;
+            return BuilderInstance;
         }
 
-        public LabelBuilder SetFontSize(Length size)
+        public TBuilder SetFontSize(Length size)
         {
             Root.style.fontSize = size;
-            return this;
+            return BuilderInstance;
         }
 
-        public LabelBuilder SetFontStyle(FontStyle style)
+        public TBuilder SetFontStyle(FontStyle style)
         {
             Root.style.unityFontStyleAndWeight = style;
-            return this;
+            return BuilderInstance;
         }
 
-        public LabelBuilder SetWhiteSpace(WhiteSpace whiteSpace)
+        public TBuilder SetWhiteSpace(WhiteSpace whiteSpace)
         {
             Root.style.whiteSpace = whiteSpace;
-            return this;
+            return BuilderInstance;
         }
 
-        protected override LocalizableLabel InitializeRoot()
+        protected override TElement InitializeRoot()
         {
-            return new LocalizableLabel();
+            return new TElement();
         }
     }
 }

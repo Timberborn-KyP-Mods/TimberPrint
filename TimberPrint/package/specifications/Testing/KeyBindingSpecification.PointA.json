@@ -1,0 +1,9 @@
+{
+  "Id": "PointA",
+  "GroupId": "TimberPrint",
+  "LocKey": "PointA",
+  "Order": 10,
+  "PrimaryInputBindingSpecification": {
+    "Path": "/numpad/1"
+  }
+}

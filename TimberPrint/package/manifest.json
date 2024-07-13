@@ -1,8 +1,8 @@
 {
   "Name": "TimberPrint",
-  "Version": "1.0",
+  "Version": "0.2.0.1",
   "Id": "TimberPrint",
-  "MinimumGameVersion": "0.0.0.0",
-  "Description": "Best mod",
+  "MinimumGameVersion": "0.6.1.2",
+  "Description": "Blueprint mod, making building even better!",
   "RequiredMods": []
 }

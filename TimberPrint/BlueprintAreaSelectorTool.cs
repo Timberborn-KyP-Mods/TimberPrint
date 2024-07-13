@@ -30,13 +30,15 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
     
     private readonly ConstructionModeService _constructionModeService;
 
+    private readonly BlueprintManager _blueprintManager;
+
     private BlockObjectSelectionDrawer _blockObjectSelectionDrawer = null!;
 
     private AreaBlockObjectPicker _areaBlockObjectPicker = null!;
 
     public BlueprintAreaSelectorTool(InputService inputService,
         BlockObjectSelectionDrawerFactory blockObjectSelectionDrawerFactory, Colors colors,
-        AreaBlockObjectPickerFactory areaBlockObjectPickerFactory, PrefabNameRetriever prefabNameRetriever, BlueprintRepository blueprintRepository, ToolManager toolManager, ConstructionModeService constructionModeService)
+        AreaBlockObjectPickerFactory areaBlockObjectPickerFactory, PrefabNameRetriever prefabNameRetriever, BlueprintRepository blueprintRepository, ToolManager toolManager, ConstructionModeService constructionModeService, BlueprintManager blueprintManager)
     {
         _inputService = inputService;
         _blockObjectSelectionDrawerFactory = blockObjectSelectionDrawerFactory;
@@ -46,6 +48,7 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
         _blueprintRepository = blueprintRepository;
         _toolManager = toolManager;
         _constructionModeService = constructionModeService;
+        _blueprintManager = blueprintManager;
     }
 
     public void Load()
@@ -130,9 +133,10 @@ public class BlueprintAreaSelectorTool : Tool, IInputProcessor, ILoadableSinglet
             )
         ).ToArray();
 
-        var bp = new Blueprint(blueprintItems);
+        var bp = new Blueprint("", blueprintItems);
         
         _blueprintRepository.Add(bp);
+        _blueprintManager.SwitchBlueprint(bp);
     }
 
     private void ShowNoneCallback() => _blockObjectSelectionDrawer.StopDrawing();

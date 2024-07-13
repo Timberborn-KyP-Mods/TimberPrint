@@ -20,7 +20,7 @@ namespace TimberApi.UIBuilder.StyleSheetSystem
         
         public PropertyBuilder AddNineSlicedBackgroundImage(string path, float slice, float sliceScale)
         {
-            Add(Property.NineSlicedBackgroundImage, _assetLoader.Load<Sprite>(path));
+            Add(Property.NineSlicedBackgroundImage, path, StyleValueType.ResourcePath);
             Add(Property.BackgroundSlice, slice);
             Add(Property.BackgroundSliceScale, sliceScale);
 

@@ -13,6 +13,7 @@ public class BlueprintConfigurator : IConfigurator
         containerDefinition.Bind<BlueprintService>().AsSingleton();
         containerDefinition.Bind<BlueprintCompressor>().AsSingleton();
         containerDefinition.Bind<BluePrintSharing>().AsSingleton();
+        containerDefinition.Bind<BlueprintManager>().AsSingleton();
 
         containerDefinition.Bind<BlueprintPlacerTool>().AsSingleton();
         containerDefinition.Bind<BlueprintPlacerButton>().AsSingleton();

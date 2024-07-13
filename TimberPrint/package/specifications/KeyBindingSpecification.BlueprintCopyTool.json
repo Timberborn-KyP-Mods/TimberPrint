@@ -6,7 +6,7 @@
   "PrimaryInputBindingSpecification": {
     "Path": "/Keyboard/c",
     "InputModifiers": {
-      "Value": "Shift"
+      "Value": "Ctrl"
     }
   }
 }

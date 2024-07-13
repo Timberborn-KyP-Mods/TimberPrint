@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using Timberborn.AreaSelectionSystem;
 using Timberborn.ConstructionMode;
@@ -28,6 +26,8 @@ public class BlueprintPlacerTool : Tool, IInputProcessor, ILoadableSingleton
     private AreaPicker _areaPicker = null!;
 
     private Orientation _orientation = Orientation.Cw0;
+
+    private bool _flip;
 
     public BlueprintPlacerTool(InputService inputService, BlueprintService blueprintService, AreaPickerFactory areaPickerFactory, ToolManager toolManager, ConstructionModeService constructionModeService)
     {
@@ -62,17 +62,17 @@ public class BlueprintPlacerTool : Tool, IInputProcessor, ILoadableSingleton
     {
         if (_blueprintPreviewPlacer != null)
         {
-            _blueprintService.PlaceBlueprint(_blueprintPreviewPlacer, placements.FirstOrDefault().Coordinates, _orientation);
+            _blueprintService.PlaceBlueprint(_blueprintPreviewPlacer, placements.LastOrDefault().Coordinates, _orientation, _flip);
         }
     }
 
     private void PreviewCallback(IEnumerable<Placement> placements)
     {
-        var placement = placements.FirstOrDefault();
+        var placement = placements.LastOrDefault();
         
         if (placement != null)
         {
-            _blueprintPreviewPlacer?.Show(placement.Coordinates, _orientation);
+            _blueprintPreviewPlacer?.Show(placement.Coordinates, _orientation, _flip);
         }
     }
 
@@ -88,23 +88,24 @@ public class BlueprintPlacerTool : Tool, IInputProcessor, ILoadableSingleton
     {
         if(_inputService.IsKeyDown("RotateClockwise"))
         {
-            _orientation = Rotate(_orientation, Orientation.Cw90);
+            _orientation = _orientation.RotateClockwise();
         }
         
         if(_inputService.IsKeyDown("RotateCounterclockwise"))
         {
-            _orientation = Rotate(_orientation, Orientation.Cw270);
+            _orientation = _orientation.RotateCounterclockwise();
         }
-    }
-    
-    private Orientation Rotate(Orientation old, Orientation add)
-    {
-        return (Orientation)(((int)old + (int)add) % 4);
+        
+        if(_inputService.IsKeyDown("Flip"))
+        {
+            _flip = !_flip;
+        }
     }
 
     public override void Enter()
     {
         _orientation = Orientation.Cw0;
+        _flip = false;
         _constructionModeService.EnterConstructionMode();
         _blueprintService.TryLoadBlueprint(out _blueprintPreviewPlacer);
     }
