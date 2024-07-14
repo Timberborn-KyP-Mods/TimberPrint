@@ -1,4 +1,5 @@
 using Bindito.Core;
+using Timberborn.AreaSelectionSystem;
 
 namespace TimberPrint.New.BlueprintSelectionSystem;
 
@@ -9,5 +10,8 @@ public class BlockObjectSelectionConfigurator : IConfigurator
     {
         containerDefinition.Bind<BlockObjectSelectionDrawerFactory>().AsSingleton();
         containerDefinition.Bind<TopRectangleBoundsDrawerFactory>().AsSingleton();
+        containerDefinition.Bind<BlueprintBlockObjectPicker>().AsSingleton();
+        containerDefinition.Bind<BlueprintAreaBlockObjectPickerFactory>().AsSingleton();
+        containerDefinition.Bind<BlueprintStackedBlockObjectPicker>().AsSingleton();
     }
 }

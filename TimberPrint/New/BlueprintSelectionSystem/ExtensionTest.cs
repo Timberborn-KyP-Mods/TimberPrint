@@ -1,6 +1,6 @@
 namespace TimberPrint.New.BlueprintSelectionSystem;
 
-public class BlueprintAreaSelector
+public class ExtensionTest
 {
     
 }

@@ -1,20 +1,28 @@
 using System.Collections.Generic;
+using Timberborn.AreaSelectionSystem;
 using Timberborn.BlockSystem;
+using Timberborn.Buildings;
 using Timberborn.CursorToolSystem;
+using Timberborn.DeconstructionSystemUI;
 using Timberborn.InputSystem;
 using Timberborn.SingletonSystem;
 using Timberborn.ToolSystem;
 using TimberPrint.New.BlueprintSelectionSystem;
 using UnityEngine;
+using BlockObjectSelectionDrawer = TimberPrint.New.BlueprintSelectionSystem.BlockObjectSelectionDrawer;
+using BlockObjectSelectionDrawerFactory = TimberPrint.New.BlueprintSelectionSystem.BlockObjectSelectionDrawerFactory;
 
 namespace TimberPrint.New.TestCode;
 
 public class MouseTestingTool(
     InputService inputService,
     CursorCoordinatesPicker cursorCoordinatesPicker,
-    BlockObjectSelectionDrawerFactory blockObjectSelectionDrawerFactory)
+    BlockObjectSelectionDrawerFactory blockObjectSelectionDrawerFactory,
+    BlueprintAreaBlockObjectPickerFactory blueprintAreaBlockObjectPickerFactory)
     : Tool, IInputProcessor, ILoadableSingleton
 {
+    private BlueprintAreaBlockObjectPicker _blueprintAreaBlockObjectPicker = null!;
+    
     private BlockObjectSelectionDrawer _blockObjectSelectionDrawer = null!;
 
     private Vector3Int? _pointA;
@@ -25,6 +33,18 @@ public class MouseTestingTool(
 
     public bool ProcessInput()
     {
+        if (inputService.IsKeyDown("IncreaseHeight"))
+        {
+            _height += 1;
+        }
+
+        if (inputService.IsKeyDown("DecreaseHeight"))
+        {
+            _height -= 1;
+        }
+        
+        return _blueprintAreaBlockObjectPicker.PickBlockObjects<Building>(PreviewCallback, ActionCallback, ShowNoneCallback, _height);
+        
         if (inputService.IsKeyDown("PointA"))
         {
             _pointA = GetCursorCoordinates()?.TileCoordinates;
@@ -55,6 +75,21 @@ public class MouseTestingTool(
         return false;
     }
 
+    private void ShowNoneCallback()
+    {
+        _blockObjectSelectionDrawer.StopDrawing();
+    }
+
+    private void ActionCallback(IEnumerable<BlockObject> blockObjects, Vector3Int start, Vector3Int end, bool selectionstarted, bool selectingArea)
+    {
+        
+    }
+
+    private void PreviewCallback(IEnumerable<BlockObject> blockObjects, Vector3Int start, Vector3Int end, bool selectionstarted, bool selectingArea)
+    {
+        _blockObjectSelectionDrawer.Draw(blockObjects, start, end, _height, selectingArea);
+    }
+
     private CursorCoordinates? GetCursorCoordinates()
     {
         return cursorCoordinatesPicker.CursorCoordinates();
@@ -72,6 +107,8 @@ public class MouseTestingTool(
 
     public void Load()
     {
+        _blueprintAreaBlockObjectPicker = blueprintAreaBlockObjectPickerFactory.CreatePickingUpwards();
+        
         _blockObjectSelectionDrawer = blockObjectSelectionDrawerFactory.Create(
             new Color(0, 0.41f, 1),
             Color.blue,
